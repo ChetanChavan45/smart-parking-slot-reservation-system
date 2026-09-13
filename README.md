@@ -1,4 +1,4 @@
-# 🚗 Smart Parking System
+[# 🚗 Smart Parking System
 
 A web application for **parking reservation, payment processing, and parking management**, built with **ASP.NET Core MVC** following the **Controller → Service → Repository** architecture.
 
@@ -169,3 +169,4 @@ Faculty of Electrical Engineering
 University of Sarajevo
 
 🔗 GitHub: https://github.com/sarabajric
+](https://itron.wd5.myworkdayjobs.com/en-GB/Itron/job/India-Bangalore/Apprentice_JR101995?source=LinkedIn)
