@@ -1,0 +1,150 @@
+@model PametniParkingSistem.Models.ParkingMjesto
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Uredi parking mjesto";
+    bool jeOperater = User.IsInRole("Operater") && !User.IsInRole("Administrator");
+}
+
+<div class="page-header mb-4">
+    <h1>Uredi parking mjesto</h1>
+
+    @if (jeOperater)
+    {
+        <p class="text-muted">
+            Operater može promijeniti samo status parking mjesta.
+        </p>
+    }
+    else
+    {
+        <p class="text-muted">
+            Administrator može ažurirati sve podatke o parking mjestu.
+        </p>
+    }
+</div>
+
+<div class="card p-4 shadow-sm">
+    <form asp-action="Edit" method="post">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <input type="hidden" asp-for="Id" />
+
+        @if (jeOperater)
+        {
+            <input type="hidden" asp-for="Oznaka" />
+            <input type="hidden" asp-for="TipMjesta" />
+            <input type="hidden" asp-for="Natkriveno" />
+            <input type="hidden" asp-for="UdaljenostOdUlaza" />
+            <input type="hidden" asp-for="CijenaPoSatu" />
+            <input type="hidden" asp-for="ParkingZonaId" />
+
+            <div class="operator-status-card mb-4">
+                <h3>@Model.Oznaka</h3>
+                <p>Promijenite trenutni status parking mjesta.</p>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Status" class="form-label">Status mjesta</label>
+                <select asp-for="Status" class="form-select">
+                    @foreach (var status in Html.GetEnumSelectList<StatusMjesta>()
+                        .Where(s => s.Text != "Zauzeto"))
+                    {
+                        <option value="@status.Value" selected="@(status.Selected ? "selected" : null)">
+                            @status.Text
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+                <small class="text-muted">
+                    Odaberite “VanFunkcije” ako mjesto trenutno nije dostupno za rezervaciju.
+                </small>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Oznaka" class="form-label">Oznaka mjesta</label>
+                    <input asp-for="Oznaka"
+                           class="form-control"
+                           placeholder="npr. A1, B5, VIP1" />
+                    <span asp-validation-for="Oznaka" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ParkingZonaId" class="form-label">Parking zona</label>
+                    <select asp-for="ParkingZonaId" class="form-select">
+                        <option value="1">Zona A - najbliže ulazu</option>
+                        <option value="2">Zona B - standardna zona</option>
+                        <option value="3">Zona C - ekonomična zona</option>
+                        <option value="4">VIP zona - premium mjesta</option>
+                    </select>
+                    <span asp-validation-for="ParkingZonaId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Status" class="form-label">Status mjesta</label>
+                    <select asp-for="Status" class="form-select">
+                        @foreach (var status in Html.GetEnumSelectList<StatusMjesta>()
+                            .Where(s => s.Text != "Zauzeto"))
+                        {
+                            <option value="@status.Value" selected="@(status.Selected ? "selected" : null)">
+                                @status.Text
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TipMjesta" class="form-label">Tip mjesta</label>
+                    <select asp-for="TipMjesta"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<TipMjesta>()">
+                    </select>
+                    <span asp-validation-for="TipMjesta" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="UdaljenostOdUlaza" class="form-label">Udaljenost od ulaza (m)</label>
+                    <input asp-for="UdaljenostOdUlaza"
+                           class="form-control"
+                           placeholder="npr. 25" />
+                    <span asp-validation-for="UdaljenostOdUlaza" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CijenaPoSatu" class="form-label">Cijena po satu (KM)</label>
+                    <input asp-for="CijenaPoSatu"
+                           class="form-control"
+                           placeholder="npr. 2" />
+                    <span asp-validation-for="CijenaPoSatu" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Natkriveno" />
+                        <label class="form-check-label" asp-for="Natkriveno">
+                            Natkriveno parking mjesto
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk me-2"></i>
+                Sačuvaj izmjene
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Nazad
+            </a>
+        </div>
+
+    </form>
+</div>

@@ -1,0 +1,210 @@
+﻿@model PametniParkingSistem.ViewModels.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Prijava";
+}
+
+<div class="auth-page">
+
+    <div class="auth-card same-auth-card">
+
+        <div class="auth-left">
+            <h1>Dobrodošli nazad!</h1>
+
+            <p>
+                Prijavite se i upravljajte svojim rezervacijama,
+                pregledajte historiju parkinga i brzo rezervišite mjesto.
+            </p>
+
+            <div class="auth-features">
+                <span><i class="fa-solid fa-square-parking"></i> Brza rezervacija</span>
+                <span><i class="fa-solid fa-clock"></i> Dostupno 24/7</span>
+                <span><i class="fa-solid fa-shield-halved"></i> Video nadzor i sigurnost</span>
+            </div>
+        </div>
+
+        <div class="auth-right">
+
+            <h2>Prijava</h2>
+
+            <form asp-action="Login" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control auth-input" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Lozinka" class="form-label"></label>
+                    <input asp-for="Lozinka" class="form-control auth-input" />
+                    <span asp-validation-for="Lozinka" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="ZapamtiMe" class="form-check-input" />
+                    <label asp-for="ZapamtiMe" class="form-check-label">
+                        Zapamti me
+                    </label>
+                </div>
+
+                <button type="submit" class="btn auth-btn w-100">
+                    Prijavi se
+                </button>
+
+                <div class="auth-bottom-text">
+                    Nemate korisnički račun?
+                    <a asp-controller="Account" asp-action="Register">
+                        Registrujte se
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    .auth-page {
+        min-height: calc(100vh - 140px);
+        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 40%, #ffffff 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 1200px;
+        min-height: 720px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+
+    .auth-left {
+        padding: 70px 60px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+    }
+
+        .auth-left h1 {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .auth-left p {
+            font-size: 18px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+    .auth-features {
+        margin-top: 35px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+        .auth-features span {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .auth-features i {
+            margin-right: 10px;
+        }
+
+    .auth-right {
+        background: white;
+        padding: 70px 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .auth-right h2 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            color: #0f172a;
+        }
+
+    .auth-input {
+        height: 56px;
+        border-radius: 14px;
+        border: 1px solid #d1d5db;
+        font-size: 16px;
+        padding-left: 18px;
+    }
+
+        .auth-input:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 0.2rem rgba(22,163,74,0.2);
+        }
+
+    .auth-btn {
+        height: 56px;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        font-size: 17px;
+        font-weight: 700;
+        color: white;
+        transition: 0.25s;
+    }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(22,163,74,0.35);
+        }
+
+    .auth-bottom-text {
+        margin-top: 24px;
+        text-align: center;
+        color: #64748b;
+    }
+
+        .auth-bottom-text a {
+            color: #16a34a;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+    @@media(max-width: 900px) {
+
+        .auth-card {
+            grid-template-columns: 1fr;
+            min-height: auto;
+        }
+
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            padding: 45px 30px;
+        }
+    }
+
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

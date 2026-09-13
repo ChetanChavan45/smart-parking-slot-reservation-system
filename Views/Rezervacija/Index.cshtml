@@ -1,0 +1,209 @@
+@model IEnumerable<PametniParkingSistem.Models.Rezervacija>
+
+@{
+    ViewData["Title"] = "Rezervacije";
+    bool jeAdminIliOperater = User.IsInRole("Administrator") || User.IsInRole("Operater");
+}
+
+<div class="page-header mb-4">
+    <h1>Rezervacije</h1>
+    <p class="text-muted">Pregled aktivnih, završenih i otkazanih rezervacija.</p>
+</div>
+
+<div class="reservation-tabs mb-4">
+
+    <a asp-action="Index"
+           class="reservation-tab @(ViewBag.Status == null ? "active" : "")">
+        Sve rezervacije
+    </a>
+
+    <a asp-action="Index"
+           asp-route-status="Aktivne"
+           class="reservation-tab @(ViewBag.Status == "Aktivne" ? "active" : "")">
+        Aktivne
+    </a>
+
+    <a asp-action="Index"
+           asp-route-status="Zavrsene"
+           class="reservation-tab @(ViewBag.Status == "Zavrsene" ? "active" : "")">
+        Završene
+    </a>
+
+    <a asp-action="Index"
+           asp-route-status="Otkazane"
+           class="reservation-tab @(ViewBag.Status == "Otkazane" ? "active" : "")">
+        Otkazane
+    </a>
+
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <h3>Nema rezervacija</h3>
+        <p>Trenutno nema evidentiranih rezervacija.</p>
+
+        <a asp-controller="ParkingMjesto" asp-action="Index" class="btn btn-success">
+            Odaberi parking mjesto
+        </a>
+    </div>
+}
+else
+{
+    <div class="reservation-grid">
+
+        @foreach (var item in Model)
+        {
+            string statusClass = "status-neutral";
+            string statusIcon = "fa-circle-info";
+            string statusText = item.StatusRezervacije.ToString();
+
+            if (item.StatusRezervacije.ToString() == "Aktivna")
+            {
+                statusClass = "status-active";
+                statusIcon = "fa-circle-check";
+                statusText = "Aktivna";
+            }
+            else if (item.StatusRezervacije.ToString() == "Kreirana")
+            {
+                statusClass = "status-created";
+                statusIcon = "fa-clock";
+                statusText = "Kreirana";
+            }
+            else if (item.StatusRezervacije.ToString() == "Otkazana")
+            {
+                statusClass = "status-cancelled";
+                statusIcon = "fa-circle-xmark";
+                statusText = "Otkazana";
+            }
+            else if (item.StatusRezervacije.ToString() == "Zavrsena")
+            {
+                statusClass = "status-finished";
+                statusIcon = "fa-flag-checkered";
+                statusText = "Završena";
+            }
+            else if (item.StatusRezervacije.ToString() == "Produzena")
+            {
+                statusClass = "status-extended";
+                statusIcon = "fa-arrows-rotate";
+                statusText = "Produžena";
+            }
+
+            <div class="reservation-card">
+
+                <div class="reservation-card-header">
+
+                    <div>
+                        <span class="reservation-label">Parking mjesto</span>
+
+                        <h3>
+                            @if (item.ParkingMjesto != null)
+                            {
+                                @item.ParkingMjesto.Oznaka
+                            }
+                            else
+                            {
+                                @($"ID {item.ParkingMjestoId}")
+                            }
+                        </h3>
+                    </div>
+
+                    <span class="reservation-status @statusClass">
+                        <i class="fa-solid @statusIcon me-1"></i>
+                        @statusText
+                    </span>
+
+                </div>
+
+                @if (jeAdminIliOperater)
+                {
+                    <div class="reservation-user">
+                        <i class="fa-solid fa-user me-2"></i>
+
+                        @if (item.Korisnik != null)
+                        {
+                            @($"{item.Korisnik.Ime} {item.Korisnik.Prezime}")
+                        }
+                        else
+                        {
+                            <span>Nepoznat korisnik</span>
+                        }
+                    </div>
+                }
+
+                <div class="reservation-details">
+
+                    <div>
+                        <span>Početak</span>
+                        <strong>@item.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div>
+                        <span>Kraj</span>
+                        <strong>@item.VrijemeKraja.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div>
+                        <span>Tablice</span>
+                        <strong>@item.RegistracijskeTablice</strong>
+                    </div>
+
+                    <div>
+                        <span>Cijena</span>
+                        <strong>@item.UkupnaCijena.ToString("0.00") KM</strong>
+                    </div>
+
+                    <div>
+                        <span>Kontakt</span>
+                        <strong>@item.KontaktTelefon</strong>
+                    </div>
+
+                    <div>
+                        <span>Email</span>
+                        <strong>@item.EmailZaObavijest</strong>
+                    </div>
+
+                </div>
+
+                <div class="reservation-created">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    Kreirano: @item.DatumKreiranja.ToString("dd.MM.yyyy HH:mm")
+                </div>
+
+                <div class="reservation-actions">
+
+                    <a asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn btn-outline-secondary btn-sm">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        Detalji
+                    </a>
+
+                    @if (item.StatusRezervacije.ToString() == "Aktivna")
+                    {
+                        @if (!jeAdminIliOperater)
+                        {
+                            <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-warning btn-sm">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>
+                                Uredi
+                            </a>
+                        }
+
+                        <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-danger btn-sm">
+                            <i class="fa-solid fa-ban me-1"></i>
+                            Otkaži
+                        </a>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+}

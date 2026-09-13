@@ -1,0 +1,43 @@
+@model PametniParkingSistem.Models.Cjenovnik
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Cjenovnik</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CijenaPoSatu" class="control-label"></label>
+                <input asp-for="CijenaPoSatu" class="form-control" />
+                <span asp-validation-for="CijenaPoSatu" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VaziOd" class="control-label"></label>
+                <input asp-for="VaziOd" class="form-control" />
+                <span asp-validation-for="VaziOd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VaziDo" class="control-label"></label>
+                <input asp-for="VaziDo" class="form-control" />
+                <span asp-validation-for="VaziDo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,119 @@
+﻿@model PametniParkingSistem.Models.Recenzija
+
+@{
+    ViewData["Title"] = "Dodaj recenziju";
+    int rezervacijaId = ViewBag.RezervacijaId;
+}
+
+<div class="review-create-page">
+
+    <div class="review-create-card">
+
+        <div class="review-create-icon">
+            <i class="fa-solid fa-star"></i>
+        </div>
+
+        <h1>Dodaj recenziju</h1>
+        <p class="text-muted">
+            Ocijenite svoje iskustvo nakon završene rezervacije.
+        </p>
+
+        <form asp-action="Create" method="post">
+
+            <input type="hidden" name="rezervacijaId" value="@rezervacijaId" />
+            <input type="hidden" asp-for="Ocjena" id="Ocjena" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="review-rating-section">
+                <label class="form-label fw-bold">Vaša ocjena</label>
+
+                <div class="star-rating" id="starRating">
+                    <button type="button" class="star-btn" data-value="1">★</button>
+                    <button type="button" class="star-btn" data-value="2">★</button>
+                    <button type="button" class="star-btn" data-value="3">★</button>
+                    <button type="button" class="star-btn" data-value="4">★</button>
+                    <button type="button" class="star-btn" data-value="5">★</button>
+                </div>
+
+                <span asp-validation-for="Ocjena" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Komentar" class="form-label fw-bold">
+                    Komentar
+                </label>
+
+                <textarea asp-for="Komentar"
+                          class="form-control review-textarea"
+                          rows="5"
+                          placeholder="Napišite komentar..."></textarea>
+            </div>
+
+            <div class="review-create-note">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Vaša recenzija će biti vidljiva svim korisnicima sistema.
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+
+                <a asp-controller="Rezervacija"
+                       asp-action="Details"
+                       asp-route-id="@rezervacijaId"
+                       class="btn btn-secondary">
+                    Odustani
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-paper-plane me-2"></i>
+                    Pošalji recenziju
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const stars = document.querySelectorAll(".star-btn");
+        const ocjenaInput = document.getElementById("Ocjena");
+
+        let selectedRating = parseInt(ocjenaInput.value || "5");
+
+        function updateStars(value) {
+            stars.forEach(star => {
+                const starValue = parseInt(star.dataset.value);
+                star.classList.toggle("active", starValue <= value);
+            });
+
+            ocjenaInput.value = value;
+        }
+
+        stars.forEach(star => {
+            star.addEventListener("click", function () {
+                selectedRating = parseInt(this.dataset.value);
+                updateStars(selectedRating);
+            });
+
+            star.addEventListener("mouseenter", function () {
+                updateStars(parseInt(this.dataset.value));
+            });
+        });
+
+        document.getElementById("starRating").addEventListener("mouseleave", function () {
+            updateStars(selectedRating);
+        });
+
+        updateStars(selectedRating);
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

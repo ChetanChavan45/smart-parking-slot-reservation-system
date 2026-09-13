@@ -1,0 +1,164 @@
+﻿@model PametniParkingSistem.Models.Korisnik
+
+@{
+    ViewData["Title"] = "Uredi profil";
+}
+
+<div class="profile-form-page">
+    <div class="profile-form-card">
+
+        <div class="profile-form-header">
+            <div>
+                <span class="profile-form-badge">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Uređivanje profila
+                </span>
+
+                <h1>Uredi profil</h1>
+                <p>Ažurirajte lične podatke, kontakt informacije i profilnu sliku.</p>
+            </div>
+
+            <div class="profile-form-avatar">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilnaSlikaUrl))
+                {
+                    <img src="@Model.ProfilnaSlikaUrl" alt="Profilna slika" />
+                }a
+                else
+                {
+                    <i class="fa-solid fa-user"></i>
+                }
+            </div>
+        </div>
+
+        <form asp-action="EditProfil"
+              asp-controller="Korisnik"
+              method="post"
+              enctype="multipart/form-data"
+              id="editProfileForm"
+              class="profile-form">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary-errors"></div>
+
+            <div class="profile-form-section">
+                <h3>
+                    <i class="fa-solid fa-image"></i>
+                    Profilna slika
+                </h3>
+
+                <div class="file-upload-box">
+                    <label for="profilnaSlika" class="file-upload-label">
+                        Odaberite profilnu sliku
+                    </label>
+
+                    <input type="file"
+                           id="profilnaSlika"
+                           name="profilnaSlika"
+                           class="form-control profile-input"
+                           accept=".jpg,.jpeg,.png,.webp" />
+
+                    <small>Dozvoljeni formati su JPG, JPEG, PNG i WEBP.</small>
+                </div>
+            </div>
+
+            <div class="profile-form-section">
+                <h3>
+                    <i class="fa-solid fa-id-card"></i>
+                    Lični podaci
+                </h3>
+
+                <div class="profile-form-grid">
+                    <div class="profile-field">
+                        <label asp-for="Ime">Ime</label>
+                        <input asp-for="Ime" class="form-control profile-input" />
+                        <span asp-validation-for="Ime" class="text-danger"></span>
+                    </div>
+
+                    <div class="profile-field">
+                        <label asp-for="Prezime">Prezime</label>
+                        <input asp-for="Prezime" class="form-control profile-input" />
+                        <span asp-validation-for="Prezime" class="text-danger"></span>
+                    </div>
+
+                    <div class="profile-field">
+                        <label asp-for="Email">Email</label>
+                        <input asp-for="Email" class="form-control profile-input" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="profile-field">
+                        <label asp-for="PhoneNumber">Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control profile-input" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-form-actions">
+                <button type="submit" class="btn-save-profile">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Sačuvaj izmjene
+                </button>
+
+                <a asp-controller="Korisnik"
+                   asp-action="Profil"
+                   class="btn-back-profile"
+                   id="backProfileLink">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Nazad
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let formChanged = false;
+        let formSubmitted = false;
+
+        const form = document.getElementById("editProfileForm");
+        const backLink = document.getElementById("backProfileLink");
+
+        if (form) {
+            form.querySelectorAll("input, textarea, select").forEach(function (element) {
+                element.addEventListener("input", function () {
+                    formChanged = true;
+                });
+
+                element.addEventListener("change", function () {
+                    formChanged = true;
+                });
+            });
+
+            form.addEventListener("submit", function () {
+                formSubmitted = true;
+            });
+        }
+
+        window.addEventListener("beforeunload", function (event) {
+            if (formChanged && !formSubmitted) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        });
+
+        if (backLink) {
+            backLink.addEventListener("click", function (event) {
+                if (formChanged && !formSubmitted) {
+                    const potvrda = confirm("Niste sačuvali izmjene na profilu. Želite li svejedno napustiti uređivanje?");
+
+                    if (!potvrda) {
+                        event.preventDefault();
+                    }
+                }
+            });
+        }
+    </script>
+}

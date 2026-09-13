@@ -1,0 +1,156 @@
+@model PametniParkingSistem.Models.ParkingMjesto
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Detalji parking mjesta";
+
+    string nazivZone = Model.ParkingZonaId switch
+    {
+        1 => "Zona A - najbliže ulazu",
+        2 => "Zona B - standardna zona",
+        3 => "Zona C - ekonomična zona",
+        4 => "VIP zona - premium mjesta",
+        _ => $"Zona {Model.ParkingZonaId}"
+    };
+
+    string tipText = Model.TipMjesta switch
+    {
+        TipMjesta.Standardno => "Standardno parking mjesto",
+        TipMjesta.Invalidsko => "Parking mjesto za osobe sa invaliditetom",
+        TipMjesta.ElektricnoVozilo => "Parking mjesto za električno vozilo",
+        _ => Model.TipMjesta.ToString()
+    };
+}
+
+<div class="page-header mb-4">
+    <h1>Detalji parking mjesta</h1>
+    <p class="text-muted">Pregled informacija za odabrano parking mjesto.</p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-5">
+        <div class="parking-detail-hero">
+
+            <div class="parking-detail-icon">
+                @if (Model.Oznaka.ToUpper().Contains("VIP"))
+                {
+                    <i class="fa-solid fa-star"></i>
+                }
+                else if (Model.TipMjesta == TipMjesta.Invalidsko)
+                {
+                    <i class="fa-solid fa-wheelchair"></i>
+                }
+                else if (Model.TipMjesta == TipMjesta.ElektricnoVozilo)
+                {
+                    <i class="fa-solid fa-bolt"></i>
+                }
+                else
+                {
+                    <i class="fa-solid fa-square-parking"></i>
+                }
+            </div>
+
+            <h2>@Model.Oznaka</h2>
+            <p>@tipText</p>
+
+            @if (Model.Status == StatusMjesta.Slobodno)
+            {
+                <span class="badge bg-success">Dostupno za rezervaciju</span>
+            }
+            else if (Model.Status == StatusMjesta.Rezervisano)
+            {
+                <span class="badge bg-warning text-dark">Rezervisano do daljnjeg</span>
+            }
+            else if (Model.Status == StatusMjesta.VanFunkcije)
+            {
+                <span class="badge bg-danger">Van funkcije</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">@Model.Status</span>
+            }
+
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card p-4 shadow-sm">
+
+            <h4 class="mb-4">
+                <i class="fa-solid fa-circle-info me-2 text-success"></i>
+                Informacije o mjestu
+            </h4>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+                    <span>Parking zona</span>
+                    <strong>@nazivZone</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Tip mjesta</span>
+                    <strong>@tipText</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Natkriveno</span>
+                    <strong>@(Model.Natkriveno ? "Da" : "Ne")</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Udaljenost od ulaza</span>
+                    <strong>@Model.UdaljenostOdUlaza m</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Cijena po satu</span>
+                    <strong>@Model.CijenaPoSatu KM</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Status</span>
+                    <strong>@Model.Status</strong>
+                </div>
+
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex flex-wrap gap-2">
+
+                @if (User.Identity != null
+                                && User.Identity.IsAuthenticated
+                                && User.IsInRole("RegistrovaniKorisnik")
+                                && Model.Status == StatusMjesta.Slobodno)
+                {
+                    <a asp-controller="Rezervacija"
+                           asp-action="Create"
+                           asp-route-parkingMjestoId="@Model.Id"
+                           class="btn btn-success">
+                        <i class="fa-solid fa-calendar-plus me-2"></i>
+                        Rezerviši mjesto
+                    </a>
+                }
+
+                @if (User.IsInRole("Administrator") || User.IsInRole("Operater"))
+                {
+                    <a asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-warning">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>
+                        Uredi
+                    </a>
+                }
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Nazad
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

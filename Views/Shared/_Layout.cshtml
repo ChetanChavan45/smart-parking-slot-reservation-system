@@ -1,0 +1,209 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PametniParkingSistem.Models
+@inject UserManager<Korisnik> UserManager
+
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Pametni Parking</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PametniParkingSistem.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-square-parking me-2"></i>
+                    Pametni Parking
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav main-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fa-solid fa-house me-1"></i>
+                                Početna
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="ParkingMjesto" asp-action="Index">
+                                <i class="fa-solid fa-car me-1"></i>
+                                Parking mjesta
+                            </a>
+                        </li>
+
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            if (User.IsInRole("Administrator") || User.IsInRole("Operater"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Rezervacija" asp-action="Index">
+                                        <i class="fa-solid fa-calendar-check me-1"></i>
+                                        Rezervacije
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Rezervacija" asp-action="Moje">
+                                        <i class="fa-solid fa-calendar-check me-1"></i>
+                                        Moje rezervacije
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Recenzija" asp-action="Index">
+                                    <i class="fa-solid fa-star me-1"></i>
+                                    Recenzije
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Podrska" asp-action="Index">
+                                    <i class="fa-solid fa-headset me-1"></i>
+                                    Podrška
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Administrator") || User.IsInRole("Operater"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Korisnik" asp-action="Index">
+                                    <i class="fa-solid fa-users me-1"></i>
+                                    Korisnici
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    <div class="navbar-right">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            var korisnik = await UserManager.GetUserAsync(User);
+                            var ime = korisnik?.Ime ?? "korisniče";
+
+                            <a asp-controller="Korisnik"
+                               asp-action="Profil"
+                               class="navbar-profile-link">
+                                <span>Dobrodošli, @ime</span>
+                                <div class="profile-avatar">
+                                    @if (!string.IsNullOrWhiteSpace(korisnik?.ProfilnaSlikaUrl))
+                                    {
+                                        <img src="@korisnik.ProfilnaSlikaUrl"
+                                             alt="Profilna slika"
+                                             class="navbar-profile-image" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-user"></i>
+                                    }
+                                </div>
+                            </a>
+
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                <button type="submit" class="logout-link">
+                                    Odjava
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account"
+                               asp-action="Register"
+                               class="auth-link">
+                                Registracija
+                            </a>
+
+                            <a asp-controller="Account"
+                               asp-action="Login"
+                               class="auth-link auth-login">
+                                Prijava
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+            @if (TempData["Success"] != null)
+            {
+                <div class="toast align-items-center text-bg-success border-0 show" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fa-solid fa-circle-check me-2"></i>
+                            @TempData["Success"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="toast align-items-center text-bg-danger border-0 show" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fa-solid fa-circle-exclamation me-2"></i>
+                            @TempData["Error"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer-custom mt-5">
+        <div class="container text-center">
+            <p class="mb-0 fw-semibold">
+                Pametni Parking Sistem © 2026
+            </p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toastElements = document.querySelectorAll(".toast");
+            toastElements.forEach(t => {
+                const toast = new bootstrap.Toast(t, { delay: 3500 });
+                toast.show();
+            });
+        });
+    </script>
+</body>
+</html>

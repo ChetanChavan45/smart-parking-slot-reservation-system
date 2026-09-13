@@ -1,0 +1,75 @@
+﻿@model PametniParkingSistem.Models.PodrskaZahtjev
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Novi zahtjev za podršku";
+}
+
+<div class="review-create-page">
+    <div class="review-create-card">
+        <div class="review-create-icon">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+
+        <h1>Novi zahtjev za podršku</h1>
+        <p class="text-muted">
+            Opišite problem ili pitanje. Podrška će pregledati zahtjev i poslati odgovor.
+        </p>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Naslov" class="form-label">Naslov</label>
+                <input asp-for="Naslov" class="form-control" placeholder="Npr. Problem sa rezervacijom" />
+                <span asp-validation-for="Naslov" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Kategorija" class="form-label">Kategorija</label>
+                <select asp-for="Kategorija"
+                        class="form-select"
+                        asp-items="Html.GetEnumSelectList<KategorijaPodrske>()">
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Prioritet" class="form-label">Prioritet</label>
+                <select asp-for="Prioritet"
+                        class="form-select"
+                        asp-items="Html.GetEnumSelectList<PrioritetPodrske>()">
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Opis" class="form-label">Opis problema</label>
+                <textarea asp-for="Opis"
+                          class="form-control review-textarea"
+                          placeholder="Detaljno opišite problem..."></textarea>
+                <span asp-validation-for="Opis" class="text-danger"></span>
+            </div>
+
+            <div class="review-create-note mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Što detaljnije opišete problem, podrška će ga lakše riješiti.
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-paper-plane me-2"></i>
+                    Pošalji zahtjev
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Nazad
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

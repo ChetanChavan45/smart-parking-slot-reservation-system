@@ -1,0 +1,51 @@
+﻿<ul class="navbar-nav">
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <span class="nav-link text-dark">
+                Zdravo, @User.Identity.Name
+            </span>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-controller="Korisnik"
+               asp-action="Profil">
+
+                <i class="fa-solid fa-user me-1"></i>
+                Moj profil
+
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <form asp-controller="Account"
+                  asp-action="Logout"
+                  method="post">
+
+                <button type="submit"
+                        class="nav-link btn btn-link text-dark border-0">
+                    Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-controller="Account"
+               asp-action="Register">
+                Register
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-controller="Account"
+               asp-action="Login">
+                Login
+            </a>
+        </li>
+    }
+</ul>

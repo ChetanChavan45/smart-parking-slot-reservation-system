@@ -1,0 +1,98 @@
+@model PametniParkingSistem.Models.Korisnik
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Promjena statusa naloga";
+}
+
+<div class="status-edit-page">
+
+    <div class="status-edit-card">
+
+        <div class="status-edit-header">
+            <div class="user-avatar-small large">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilnaSlikaUrl))
+                {
+                    <img src="@Model.ProfilnaSlikaUrl" alt="Profilna slika" />
+                }
+                else
+                {
+                    <i class="fa-solid fa-user"></i>
+                }
+            </div>
+
+            <div>
+                <h1>Promjena statusa naloga</h1>
+                <p>@Model.Ime @Model.Prezime • @Model.Email</p>
+            </div>
+        </div>
+
+        <div class="status-warning-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+                <strong>Napomena</strong>
+                <p>
+                    Na ovoj stranici se ne mijenjaju ime, prezime, email ili uloga.
+                    Dozvoljena je samo promjena statusa naloga.
+                </p>
+            </div>
+        </div>
+
+        <form asp-action="Edit" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-4">
+                <label asp-for="StatusNaloga" class="form-label fw-bold">
+                    Status naloga
+                </label>
+
+                <select name="statusNaloga"
+                        class="form-select"
+                        asp-items="Html.GetEnumSelectList<StatusNaloga>()">
+                </select>
+            </div>
+
+            @if (User.IsInRole("Administrator"))
+            {
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        Uloga korisnika
+                    </label>
+
+                    <select name="uloga"
+                            class="form-select"
+                            asp-for="Uloga"
+                            asp-items="Html.GetEnumSelectList<Uloga>()">
+                    </select>
+
+                    <small class="text-muted">
+                        Samo administrator može dodjeljivati uloge korisnicima.
+                    </small>
+                </div>
+            }
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                    Sačuvaj status
+                </button>
+
+                <a asp-action="Details"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-secondary">
+                    Detalji
+                </a>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Nazad
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

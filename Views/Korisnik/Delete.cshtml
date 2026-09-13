@@ -1,0 +1,60 @@
+@model PametniParkingSistem.Models.Korisnik
+
+@{
+    ViewData["Title"] = "Brisanje korisnika";
+}
+
+<div class="delete-user-page">
+
+    <div class="delete-user-card">
+
+        <div class="delete-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h1>Brisanje korisnika</h1>
+
+        <p>
+            Da li ste sigurni da želite trajno obrisati korisnika
+            <strong>@Model.Ime @Model.Prezime</strong>?
+        </p>
+
+        <div class="delete-user-info">
+            <div>
+                <span>Email</span>
+                <strong>@Model.Email</strong>
+            </div>
+
+            <div>
+                <span>Uloga</span>
+                <strong>@Model.Uloga</strong>
+            </div>
+
+            <div>
+                <span>Status</span>
+                <strong>@Model.StatusNaloga</strong>
+            </div>
+        </div>
+
+        <form asp-action="Delete" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa-solid fa-trash me-2"></i>
+                    Trajno obriši
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Odustani
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

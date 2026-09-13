@@ -1,0 +1,184 @@
+@model PametniParkingSistem.Models.Rezervacija
+@using PametniParkingSistem.Models
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Kreiranje rezervacije";
+    var parkingMjesto = ViewBag.ParkingMjesto as ParkingMjesto;
+}
+
+<div class="page-header mb-4">
+    <h1>Kreiranje rezervacije</h1>
+    <p class="text-muted">Odaberite termin i unesite podatke za rezervaciju parking mjesta.</p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-5">
+
+        @if (parkingMjesto != null)
+        {
+            <div class="reservation-summary-card">
+
+                <div class="summary-icon">
+                    @if (parkingMjesto.Oznaka.ToUpper().Contains("VIP"))
+                    {
+                        <i class="fa-solid fa-star"></i>
+                    }
+                    else if (parkingMjesto.TipMjesta == TipMjesta.Invalidsko)
+                    {
+                        <i class="fa-solid fa-wheelchair"></i>
+                    }
+                    else if (parkingMjesto.TipMjesta == TipMjesta.ElektricnoVozilo)
+                    {
+                        <i class="fa-solid fa-bolt"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-square-parking"></i>
+                    }
+                </div>
+
+                <h2>@parkingMjesto.Oznaka</h2>
+
+                <p class="summary-type">
+                    @parkingMjesto.TipMjesta
+                </p>
+
+                <div class="summary-list">
+
+                    <div>
+                        <span>Cijena po satu</span>
+                        <strong>@parkingMjesto.CijenaPoSatu KM</strong>
+                    </div>
+
+                    <div>
+                        <span>Udaljenost od ulaza</span>
+                        <strong>@parkingMjesto.UdaljenostOdUlaza m</strong>
+                    </div>
+
+                    <div>
+                        <span>Natkriveno</span>
+                        <strong>@(parkingMjesto.Natkriveno ? "Da" : "Ne")</strong>
+                    </div>
+
+                    <div>
+                        <span>Provjera dostupnosti</span>
+                        <strong>Po terminu</strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-note">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Mjesto se može rezervisati ako nema preklapanja sa postojećim rezervacijama u odabranom terminu.
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="col-lg-7">
+
+        <div class="card p-4 shadow-sm">
+
+            <h4 class="mb-4">
+                <i class="fa-solid fa-calendar-plus me-2 text-success"></i>
+                Podaci o rezervaciji
+            </h4>
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="ParkingMjestoId" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="VrijemePocetka" class="form-label">
+                            Vrijeme početka <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="VrijemePocetka"
+                               class="form-control"
+                               type="datetime-local" />
+                        <span asp-validation-for="VrijemePocetka" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="VrijemeKraja" class="form-label">
+                            Vrijeme kraja <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="VrijemeKraja"
+                               class="form-control"
+                               type="datetime-local" />
+                        <span asp-validation-for="VrijemeKraja" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="RegistracijskeTablice" class="form-label">
+                            Registracijske tablice <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="RegistracijskeTablice"
+                               class="form-control"
+                               placeholder="npr. A12-K-345" />
+                        <span asp-validation-for="RegistracijskeTablice" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="KontaktTelefon" class="form-label">
+                            Kontakt telefon <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="KontaktTelefon"
+                               class="form-control"
+                               placeholder="npr. 061123456" />
+                        <span asp-validation-for="KontaktTelefon" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12 mb-4">
+                        <label asp-for="EmailZaObavijest" class="form-label">
+                            Email za obavijest <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="EmailZaObavijest"
+                               class="form-control"
+                               placeholder="npr. korisnik@gmail.com" />
+                        <span asp-validation-for="EmailZaObavijest" class="text-danger"></span>
+                        <small class="text-muted">
+                            Na ovaj email će stići potvrda rezervacije i plaćanja.
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="reservation-info-box mb-4">
+                    <i class="fa-solid fa-shield-halved me-2"></i>
+                    Rezervacija će biti potvrđena tek nakon uspješnog plaćanja.
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-credit-card me-2"></i>
+                        Nastavi na plaćanje
+                    </button>
+
+                    <a asp-controller="ParkingMjesto"
+                           asp-action="Index"
+                           class="btn btn-secondary">
+                        Nazad
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

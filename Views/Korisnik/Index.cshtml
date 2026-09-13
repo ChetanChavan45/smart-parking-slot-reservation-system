@@ -1,0 +1,113 @@
+@model IEnumerable<PametniParkingSistem.Models.Korisnik>
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Korisnici";
+
+    bool jeAdmin = User.IsInRole("Administrator");
+    bool jeOperater = User.IsInRole("Operater") && !jeAdmin;
+
+    var korisnici = Model.Where(k => k.Uloga == Uloga.RegistrovaniKorisnik).ToList();
+    var operateri = Model.Where(k => k.Uloga == Uloga.Operater).ToList();
+    var administratori = Model.Where(k => k.Uloga == Uloga.Administrator).ToList();
+}
+
+<div class="users-page">
+
+    <div class="users-hero">
+        <div>
+            <span class="users-badge">
+                <i class="fa-solid fa-users me-2"></i>
+                Upravljanje korisnicima
+            </span>
+
+            <h1>Korisnici sistema</h1>
+
+            <p>
+                Pregled korisnika, operatera i statusa naloga u Pametnom Parking Sistemu.
+            </p>
+        </div>
+    </div>
+
+    <div class="users-stats-grid">
+
+        <div class="users-stat-card green">
+            <i class="fa-solid fa-user"></i>
+            <span>Registrovani korisnici</span>
+            <strong>@korisnici.Count</strong>
+        </div>
+
+        <div class="users-stat-card blue">
+            <i class="fa-solid fa-headset"></i>
+            <span>Operateri</span>
+            <strong>@operateri.Count</strong>
+        </div>
+
+        @if (jeAdmin)
+        {
+            <div class="users-stat-card dark">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Administratori</span>
+                <strong>@administratori.Count</strong>
+            </div>
+        }
+
+    </div>
+
+    <div class="users-tabs">
+        <a href="#korisnici" class="users-tab active">
+            <i class="fa-solid fa-user me-2"></i>
+            Korisnici
+        </a>
+
+        <a href="#operateri" class="users-tab">
+            <i class="fa-solid fa-headset me-2"></i>
+            Operateri
+        </a>
+
+        @if (jeAdmin)
+        {
+            <a href="#administratori" class="users-tab">
+                <i class="fa-solid fa-user-shield me-2"></i>
+                Administratori
+            </a>
+        }
+    </div>
+
+    <section id="korisnici" class="users-section">
+        <h2>Registrovani korisnici</h2>
+
+        <div class="users-grid">
+            @foreach (var item in korisnici)
+            {
+                @await Html.PartialAsync("_KorisnikCard", item)
+            }
+        </div>
+    </section>
+
+    <section id="operateri" class="users-section">
+        <h2>Operateri</h2>
+
+        <div class="users-grid">
+            @foreach (var item in operateri)
+            {
+                @await Html.PartialAsync("_KorisnikCard", item)
+            }
+        </div>
+    </section>
+
+    @if (jeAdmin)
+    {
+        <section id="administratori" class="users-section">
+            <h2>Administratori</h2>
+
+            <div class="users-grid">
+                @foreach (var item in administratori)
+                {
+                    @await Html.PartialAsync("_KorisnikCard", item)
+                }
+            </div>
+        </section>
+    }
+
+</div>

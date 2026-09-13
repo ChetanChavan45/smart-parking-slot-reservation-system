@@ -1,0 +1,202 @@
+@model PametniParkingSistem.Models.Rezervacija
+
+@{
+    ViewData["Title"] = "Detalji rezervacije";
+
+    string statusClass = "status-neutral";
+    string statusIcon = "fa-circle-info";
+    string statusText = Model.StatusRezervacije.ToString();
+
+    if (Model.StatusRezervacije.ToString() == "Aktivna")
+    {
+        statusClass = "status-active";
+        statusIcon = "fa-circle-check";
+        statusText = "Aktivna";
+    }
+    else if (Model.StatusRezervacije.ToString() == "Otkazana")
+    {
+        statusClass = "status-cancelled";
+        statusIcon = "fa-circle-xmark";
+        statusText = "Otkazana";
+    }
+    else if (Model.StatusRezervacije.ToString() == "Zavrsena")
+    {
+        statusClass = "status-finished";
+        statusIcon = "fa-flag-checkered";
+        statusText = "Završena";
+    }
+
+    var trajanje = Model.VrijemeKraja - Model.VrijemePocetka;
+
+    var oznakaMjesta = Model.ParkingMjesto != null ? Model.ParkingMjesto.Oznaka : $"ID-{Model.ParkingMjestoId}";
+    var qrText = $"REZERVACIJA-{Model.Id}-{oznakaMjesta}-{Model.RegistracijskeTablice}";
+    var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="
+                + Uri.EscapeDataString(qrText);
+}
+
+<div class="page-header mb-4">
+    <h1>Detalji rezervacije</h1>
+    <p class="text-muted">Pregled svih informacija o odabranoj rezervaciji.</p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-5">
+
+        <div class="reservation-detail-hero">
+
+            <div class="reservation-detail-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <span class="reservation-status @statusClass mb-3">
+                <i class="fa-solid @statusIcon me-1"></i>
+                @statusText
+            </span>
+
+            <h2>
+                @if (Model.ParkingMjesto != null)
+                {
+                    @Model.ParkingMjesto.Oznaka
+                }
+                else
+                {
+                    @($"ID {Model.ParkingMjestoId}")
+                }
+            </h2>
+
+            <p>Rezervacija #@Model.Id</p>
+
+            <div class="hero-price">
+                @Model.UkupnaCijena.ToString("0.00") KM
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-7">
+
+        <div class="card p-4 shadow-sm">
+
+            <h4 class="mb-4">
+                <i class="fa-solid fa-receipt me-2 text-success"></i>
+                Podaci o rezervaciji
+            </h4>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+                    <span>Datum kreiranja</span>
+                    <strong>@Model.DatumKreiranja.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Trajanje</span>
+                    <strong>@Math.Ceiling(trajanje.TotalHours) h</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Vrijeme početka</span>
+                    <strong>@Model.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Vrijeme kraja</span>
+                    <strong>@Model.VrijemeKraja.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Registracijske tablice</span>
+                    <strong>@Model.RegistracijskeTablice</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Kontakt telefon</span>
+                    <strong>@Model.KontaktTelefon</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Email za obavijest</span>
+                    <strong>@Model.EmailZaObavijest</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Status</span>
+                    <strong>@statusText</strong>
+                </div>
+
+                @if (Model.Korisnik != null)
+                {
+                    <div class="detail-item">
+                        <span>Korisnik</span>
+                        <strong>@Model.Korisnik.Ime @Model.Korisnik.Prezime</strong>
+                    </div>
+                }
+
+            </div>
+
+            @if (Model.StatusRezervacije == PametniParkingSistem.Enums.StatusRezervacije.Aktivna)
+            {
+                <div class="qr-detail-box mt-4">
+                    <h5>
+                        <i class="fa-solid fa-qrcode me-2"></i>
+                        QR kod za ulazak
+                    </h5>
+
+                    <p>Skenirajte ovaj QR kod prilikom ulaska na parking.</p>
+
+                    <img src="@qrUrl" alt="QR kod rezervacije" />
+
+                    <small>@qrText</small>
+                </div>
+            }
+
+            <hr class="my-4" />
+
+            <div class="d-flex flex-wrap gap-2">
+
+                @if (Model.StatusRezervacije.ToString() != "Otkazana"
+                                && Model.StatusRezervacije.ToString() != "Zavrsena")
+                {
+                    @if (!User.IsInRole("Administrator") && !User.IsInRole("Operater"))
+                    {
+                        <a asp-action="Edit"
+                               asp-route-id="@Model.Id"
+                               class="btn btn-warning">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                            Uredi
+                        </a>
+                    }
+
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                        <i class="fa-solid fa-ban me-2"></i>
+                        Otkaži
+                    </a>
+                }
+
+                @if (Model.StatusRezervacije == PametniParkingSistem.Enums.StatusRezervacije.Zavrsena
+                                && Model.Recenzija == null)
+                {
+                    <a asp-controller="Recenzija"
+                       asp-action="Create"
+                       asp-route-rezervacijaId="@Model.Id"
+                       class="btn btn-success">
+                        <i class="fa-solid fa-star me-2"></i>
+                        Ostavi recenziju
+                    </a>
+                }
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Nazad
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

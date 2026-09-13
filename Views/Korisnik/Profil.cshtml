@@ -1,0 +1,149 @@
+﻿@using PametniParkingSistem.Enums
+@model PametniParkingSistem.Models.Korisnik
+
+@{
+    ViewData["Title"] = "Moj profil";
+}
+
+<div class="profile-page">
+
+    <div class="profile-cover">
+        <div>
+            <span class="profile-badge">Korisnički profil</span>
+
+            <div class="profile-title-wrapper">
+                <h1>@Model.Ime @Model.Prezime</h1>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="profile-layout">
+
+        <div class="profile-sidebar">
+
+            <div class="profile-avatar-big">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilnaSlikaUrl))
+                {
+                    <img src="@Model.ProfilnaSlikaUrl" alt="Profilna slika" />
+                }
+                else
+                {
+                    <i class="fa-solid fa-user"></i>
+                }
+            </div>
+
+            <h2>@Model.Ime @Model.Prezime</h2>
+            <p>@Model.Email</p>
+
+            @if (Model.StatusNaloga == StatusNaloga.Aktivan)
+            {
+                <span class="profile-status active">
+                    <i class="fa-solid fa-circle-check me-1"></i>
+                    Aktivan nalog
+                </span>
+            }
+            else
+            {
+                <span class="profile-status blocked">
+                    <i class="fa-solid fa-ban me-1"></i>
+                    Blokiran nalog
+                </span>
+            }
+
+            <div class="profile-side-actions">
+                <a asp-action="EditProfil" class="btn btn-warning w-100">
+                    <i class="fa-solid fa-pen-to-square me-2"></i>
+                    Uredi profil
+                </a>
+
+                <a asp-action="PromijeniLozinku" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-key me-2"></i>
+                    Promijeni lozinku
+                </a>
+            </div>
+
+        </div>
+
+        <div class="profile-content">
+
+            <div class="profile-stats">
+                <div class="profile-stat-card green">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Broj rezervacija</span>
+                    <strong>@ViewBag.BrojRezervacija</strong>
+                </div>
+
+                <div class="profile-stat-card blue">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Uloga</span>
+                    <strong>@Model.Uloga</strong>
+                </div>
+
+                <div class="profile-stat-card purple">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Član od</span>
+                    <strong>@Model.DatumRegistracije.ToString("dd.MM.yyyy.")</strong>
+                </div>
+            </div>
+
+            <div class="profile-info-card">
+
+                <h3>
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Osnovne informacije
+                </h3>
+
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <span>Ime</span>
+                        <strong>@Model.Ime</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Prezime</span>
+                        <strong>@Model.Prezime</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Email</span>
+                        <strong>@Model.Email</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Telefon</span>
+                        <strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Nije uneseno" : Model.PhoneNumber)</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Datum registracije</span>
+                        <strong>@Model.DatumRegistracije.ToString("dd.MM.yyyy.")</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Status naloga</span>
+                        <strong>@Model.StatusNaloga</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    .profile-title-wrapper {
+        margin-bottom: 80px;
+    }
+
+    .profile-stat-card.purple {
+        background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
+    }
+
+</style>

@@ -1,0 +1,232 @@
+@model PametniParkingSistem.ViewModels.Placanje.PlacanjeRezervacijeViewModel
+@using PametniParkingSistem.Models
+
+@{
+    ViewData["Title"] = "Plaćanje rezervacije";
+
+    var rezervacija = ViewBag.Rezervacija as Rezervacija;
+    var tipPlacanja = ViewBag.TipPlacanja as string ?? "NovaRezervacija";
+    var parkingMjestoNaziv = ViewBag.ParkingMjestoNaziv as string ?? $"Mjesto #{rezervacija?.ParkingMjestoId}";
+
+    double osnovica = Model.Iznos / 1.17;
+    double pdv = Model.Iznos - osnovica;
+
+}
+
+<div class="page-header mb-4">
+    <h1>Plaćanje rezervacije</h1>
+
+    @if (tipPlacanja == "Doplata")
+    {
+        <p class="text-muted">
+            Plaćate samo razliku nakon izmjene rezervacije.
+        </p>
+    }
+    else
+    {
+        <p class="text-muted">
+            Rezervacija će biti potvrđena nakon uspješnog plaćanja.
+        </p>
+    }
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="checkout-card">
+
+            <div class="checkout-header">
+                <div>
+                    <h3>Podaci kartice</h3>
+                    <p>Unesite podatke za sigurnu online uplatu.</p>
+                </div>
+
+                <div class="payment-icons">
+                    <i class="fa-brands fa-cc-visa"></i>
+                    <i class="fa-brands fa-cc-mastercard"></i>
+                    <i class="fa-brands fa-cc-amex"></i>
+                </div>
+            </div>
+
+            <div class="secure-box mb-4">
+                <i class="fa-solid fa-lock me-2"></i>
+                Plaćanje je simulirano i sigurno. CVV se ne pohranjuje u sistem.
+            </div>
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="ImeVlasnikaKartice" class="form-label">
+                        Ime vlasnika kartice <span class="text-danger">*</span>
+                    </label>
+
+                    <input asp-for="ImeVlasnikaKartice"
+                           class="form-control form-control-lg"
+                           placeholder="npr. Sara Bajrić" />
+
+                    <span asp-validation-for="ImeVlasnikaKartice" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BrojKartice" class="form-label">
+                        Broj kartice <span class="text-danger">*</span>
+                    </label>
+
+                    <input asp-for="BrojKartice"
+                           class="form-control form-control-lg @(ViewData.ModelState["BrojKartice"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                           placeholder="1234 5678 9012 3456" />
+
+                    <span asp-validation-for="BrojKartice" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DatumIsteka" class="form-label">
+                            Datum isteka <span class="text-danger">*</span>
+                        </label>
+
+                        <input asp-for="DatumIsteka"
+                               class="form-control form-control-lg"
+                               placeholder="MM/YY" />
+
+                        <span asp-validation-for="DatumIsteka" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CVV" class="form-label">
+                            CVV <span class="text-danger">*</span>
+                        </label>
+
+                        <input asp-for="CVV"
+                               class="form-control form-control-lg @(ViewData.ModelState["CVV"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                               placeholder="123" />
+
+                        <span asp-validation-for="CVV" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                    <i class="fa-solid fa-shield-halved me-2"></i>
+
+                    @if (tipPlacanja == "Doplata")
+                    {
+                        <span>Potvrdi doplatu</span>
+                    }
+                    else
+                    {
+                        <span>Potvrdi plaćanje i rezervaciju</span>
+                    }
+                </button>
+
+                @if (tipPlacanja == "NovaRezervacija" && rezervacija != null)
+                {
+                    <a asp-controller="Rezervacija"
+                           asp-action="Create"
+                           asp-route-parkingMjestoId="@rezervacija.ParkingMjestoId"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                        Nazad
+                    </a>
+                }
+                else if (tipPlacanja == "Doplata" && rezervacija != null)
+                {
+                    <a asp-controller="Rezervacija"
+                           asp-action="Edit"
+                           asp-route-id="@rezervacija.Id"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                        Nazad
+                    </a>
+                }
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-5">
+
+        <div class="receipt-card">
+
+            <h3>
+                <i class="fa-solid fa-receipt me-2"></i>
+                Pregled plaćanja
+            </h3>
+
+            @if (tipPlacanja == "Doplata")
+            {
+                <div class="payment-type-badge warning">
+                    Doplata za izmjenu rezervacije
+                </div>
+            }
+            else
+            {
+                <div class="payment-type-badge success">
+                    Nova rezervacija
+                </div>
+            }
+
+            @if (rezervacija != null)
+            {
+                <div class="receipt-section">
+
+                    <div class="receipt-row">
+                        <span>Parking mjesto</span>
+                        <strong>@parkingMjestoNaziv</strong>
+                    </div>
+
+                    <div class="receipt-row">
+                        <span>Početak</span>
+                        <strong>@rezervacija.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div class="receipt-row">
+                        <span>Kraj</span>
+                        <strong>@rezervacija.VrijemeKraja.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div class="receipt-row">
+                        <span>Registracijske tablice</span>
+                        <strong>@rezervacija.RegistracijskeTablice</strong>
+                    </div>
+
+                </div>
+            }
+
+            <hr />
+
+            <div class="receipt-row">
+                <span>Osnovica</span>
+                <strong>@osnovica.ToString("0.00") KM</strong>
+            </div>
+
+            <div class="receipt-row">
+                <span>PDV 17%</span>
+                <strong>@pdv.ToString("0.00") KM</strong>
+            </div>
+
+            <div class="receipt-total">
+                <span>Ukupno za plaćanje</span>
+                <strong>@Model.Iznos.ToString("0.00") KM</strong>
+            </div>
+
+            <div class="receipt-note">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Nakon potvrde plaćanja dobit ćete email potvrdu rezervacije.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

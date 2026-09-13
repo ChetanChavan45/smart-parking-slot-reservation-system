@@ -1,0 +1,115 @@
+@model PametniParkingSistem.Models.Korisnik
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Detalji korisnika";
+    bool jeAdmin = User.IsInRole("Administrator");
+}
+
+<div class="user-details-page">
+
+    <div class="user-details-hero">
+
+        <div class="user-details-avatar">
+            @if (!string.IsNullOrWhiteSpace(Model.ProfilnaSlikaUrl))
+            {
+                <img src="@Model.ProfilnaSlikaUrl" alt="Profilna slika" />
+            }
+            else
+            {
+                <i class="fa-solid fa-user"></i>
+            }
+        </div>
+
+        <div>
+            <span class="users-badge">Detalji naloga</span>
+            <h1>@Model.Ime @Model.Prezime</h1>
+            <p>@Model.Email</p>
+        </div>
+
+    </div>
+
+    <div class="profile-info-card mt-4">
+
+        <h3>
+            <i class="fa-solid fa-circle-info me-2"></i>
+            Podaci korisnika
+        </h3>
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+                <span>Ime</span>
+                <strong>@Model.Ime</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Prezime</span>
+                <strong>@Model.Prezime</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Email</span>
+                <strong>@Model.Email</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Telefon</span>
+                <strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Nije uneseno" : Model.PhoneNumber)</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Datum registracije</span>
+                <strong>@Model.DatumRegistracije.ToString("dd.MM.yyyy HH:mm")</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Uloga</span>
+                <strong>@Model.Uloga</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Status naloga</span>
+
+                @if (Model.StatusNaloga == StatusNaloga.Aktivan)
+                {
+                    <strong class="text-success">Aktivan</strong>
+                }
+                else
+                {
+                    <strong class="text-danger">Blokiran</strong>
+                }
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                <i class="fa-solid fa-user-lock me-2"></i>
+                Promijeni status naloga
+            </a>
+
+            @if (jeAdmin)
+            {
+                <a asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                    <i class="fa-solid fa-trash me-2"></i>
+                    Obriši korisnika
+                </a>
+            }
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Nazad
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

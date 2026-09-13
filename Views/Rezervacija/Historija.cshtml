@@ -1,0 +1,149 @@
+﻿@model IEnumerable<PametniParkingSistem.Models.Rezervacija>
+
+@{
+    ViewData["Title"] = "Historija rezervacija";
+    string? aktivniStatus = ViewBag.Status as string;
+}
+
+<div class="page-header mb-4">
+    <h1>Historija rezervacija</h1>
+    <p class="text-muted">Pregled završenih i otkazanih rezervacija.</p>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a asp-action="Historija"
+       class="btn @(string.IsNullOrEmpty(aktivniStatus) ? "btn-dark" : "btn-outline-dark")">
+        Sve
+    </a>
+
+    <a asp-action="Historija"
+       asp-route-status="Zavrsena"
+       class="btn @(aktivniStatus == "Zavrsena" ? "btn-success" : "btn-outline-success")">
+        Završene
+    </a>
+
+    <a asp-action="Historija"
+       asp-route-status="Otkazana"
+       class="btn @(aktivniStatus == "Otkazana" ? "btn-danger" : "btn-outline-danger")">
+        Otkazane
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <h3>Nema historije rezervacija</h3>
+        <p>Trenutno nemate završene ili otkazane rezervacije.</p>
+    </div>
+}
+else
+{
+    <div class="reservation-grid">
+
+        @foreach (var item in Model.OrderByDescending(x => x.DatumKreiranja))
+        {
+            string statusClass = "status-neutral";
+            string statusIcon = "fa-circle-info";
+            string statusText = item.StatusRezervacije.ToString();
+
+            if (item.StatusRezervacije.ToString() == "Otkazana")
+            {
+                statusClass = "status-cancelled";
+                statusIcon = "fa-circle-xmark";
+                statusText = "Otkazana";
+            }
+            else if (item.StatusRezervacije.ToString() == "Zavrsena")
+            {
+                statusClass = "status-finished";
+                statusIcon = "fa-flag-checkered";
+                statusText = "Završena";
+            }
+
+            <div class="reservation-card">
+
+                <div class="reservation-card-header">
+                    <div>
+                        <span class="reservation-label">Parking mjesto</span>
+
+                        <h3>
+                            @if (item.ParkingMjesto != null)
+                            {
+                                @item.ParkingMjesto.Oznaka
+                            }
+                            else
+                            {
+                                @($"ID {item.ParkingMjestoId}")
+                            }
+                        </h3>
+                    </div>
+
+                    <span class="reservation-status @statusClass">
+                        <i class="fa-solid @statusIcon me-1"></i>
+                        @statusText
+                    </span>
+                </div>
+
+                <div class="reservation-details">
+                    <div>
+                        <span>Početak</span>
+                        <strong>@item.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div>
+                        <span>Kraj</span>
+                        <strong>@item.VrijemeKraja.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </div>
+
+                    <div>
+                        <span>Tablice</span>
+                        <strong>@item.RegistracijskeTablice</strong>
+                    </div>
+
+                    <div>
+                        <span>Cijena</span>
+                        <strong>@item.UkupnaCijena.ToString("0.00") KM</strong>
+                    </div>
+
+                    <div>
+                        <span>Kontakt</span>
+                        <strong>@item.KontaktTelefon</strong>
+                    </div>
+
+                    <div>
+                        <span>Email</span>
+                        <strong>@item.EmailZaObavijest</strong>
+                    </div>
+                </div>
+
+                <div class="reservation-created">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    Kreirano: @item.DatumKreiranja.ToString("dd.MM.yyyy HH:mm")
+                </div>
+
+                <div class="reservation-actions">
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        Detalji
+                    </a>
+
+                    @if (item.StatusRezervacije == PametniParkingSistem.Enums.StatusRezervacije.Zavrsena
+                                && item.Recenzija == null)
+                    {
+                        <a asp-controller="Recenzija"
+                           asp-action="Create"
+                           asp-route-rezervacijaId="@item.Id"
+                           class="btn btn-success btn-sm">
+                            <i class="fa-solid fa-star me-1"></i>
+                            Ostavi recenziju
+                        </a>
+                    }
+                </div>
+
+            </div>
+        }
+
+    </div>
+}

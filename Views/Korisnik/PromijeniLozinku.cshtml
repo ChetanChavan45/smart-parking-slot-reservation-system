@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Promijeni lozinku";
+}
+
+<div class="profile-form-page">
+    <div class="profile-form-card">
+
+        <div class="profile-form-header">
+            <div>
+                <span class="profile-form-badge">
+                    <i class="fa-solid fa-key"></i>
+                    Sigurnost naloga
+                </span>
+
+                <h1>Promijeni lozinku</h1>
+                <p>Ažurirajte lozinku korisničkog naloga radi sigurnosti profila.</p>
+            </div>
+
+            <div class="profile-form-avatar">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+        </div>
+
+        <form asp-action="PromijeniLozinku"
+              asp-controller="Korisnik"
+              method="post"
+              id="changePasswordForm"
+              class="profile-form">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary-errors"></div>
+
+            <div class="profile-form-section">
+                <h3>
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Podaci za promjenu lozinke
+                </h3>
+
+                <div class="profile-form-grid password-grid">
+                    <div class="profile-field">
+                        <label for="trenutnaLozinka">Trenutna lozinka</label>
+                        <input type="password"
+                               id="trenutnaLozinka"
+                               name="trenutnaLozinka"
+                               class="form-control profile-input" />
+                        @Html.ValidationMessage("trenutnaLozinka", "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="profile-field">
+                        <label for="novaLozinka">Nova lozinka</label>
+                        <input type="password"
+                               id="novaLozinka"
+                               name="novaLozinka"
+                               class="form-control profile-input" />
+                        @Html.ValidationMessage("novaLozinka", "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="profile-field profile-field-full">
+                        <label for="potvrdaLozinke">Potvrdi novu lozinku</label>
+                        <input type="password"
+                               id="potvrdaLozinke"
+                               name="potvrdaLozinke"
+                               class="form-control profile-input" />
+                        @Html.ValidationMessage("potvrdaLozinke", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="password-info-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Lozinka treba sadržavati kombinaciju velikih i malih slova, brojeva i specijalnih znakova.
+                </div>
+            </div>
+
+            <div class="profile-form-actions">
+                <button type="submit" class="btn-save-profile">
+                    <i class="fa-solid fa-key"></i>
+                    Promijeni lozinku
+                </button>
+
+                <a asp-controller="Korisnik"
+                   asp-action="Profil"
+                   class="btn-back-profile"
+                   id="backPasswordLink">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Nazad
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let formChanged = false;
+        let formSubmitted = false;
+
+        const form = document.getElementById("changePasswordForm");
+        const backLink = document.getElementById("backPasswordLink");
+
+        if (form) {
+            form.querySelectorAll("input, textarea, select").forEach(function (element) {
+                element.addEventListener("input", function () {
+                    formChanged = true;
+                });
+
+                element.addEventListener("change", function () {
+                    formChanged = true;
+                });
+            });
+
+            form.addEventListener("submit", function () {
+                formSubmitted = true;
+            });
+        }
+
+        window.addEventListener("beforeunload", function (event) {
+            if (formChanged && !formSubmitted) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        });
+
+        if (backLink) {
+            backLink.addEventListener("click", function (event) {
+                if (formChanged && !formSubmitted) {
+                    const potvrda = confirm("Niste sačuvali izmjene. Želite li svejedno napustiti uređivanje?");
+
+                    if (!potvrda) {
+                        event.preventDefault();
+                    }
+                }
+            });
+        }
+    </script>
+}

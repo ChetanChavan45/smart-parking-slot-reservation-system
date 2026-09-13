@@ -1,0 +1,638 @@
+﻿@using PametniParkingSistem.Models
+
+@{
+    ViewData["Title"] = "Početna";
+
+    double prosjecnaOcjena = ViewBag.ProsjecnaOcjena ?? 0;
+    int brojRecenzija = ViewBag.BrojRecenzija ?? 0;
+    var zadnjeRecenzije = ViewBag.ZadnjeRecenzije as List<Recenzija> ?? new List<Recenzija>();
+
+    int brojRezervacija = ViewBag.BrojRezervacija ?? 0;
+    int aktivneRezervacije = ViewBag.AktivneRezervacije ?? 0;
+    int zavrseneRezervacije = ViewBag.ZavrseneRezervacije ?? 0;
+    int otkazaneRezervacije = ViewBag.OtkazaneRezervacije ?? 0;
+    int brojParkingMjesta = ViewBag.BrojParkingMjesta ?? 0;
+    int brojKorisnika = ViewBag.BrojKorisnika ?? 0;
+    double ukupnaZarada = ViewBag.UkupnaZarada ?? 0;
+
+    int mojeRezervacijeCount = ViewBag.MojeRezervacijeCount ?? 0;
+    var mojaAktivnaRezervacija = ViewBag.MojaAktivnaRezervacija as Rezervacija;
+
+    var zadnjeRezervacije = ViewBag.ZadnjeRezervacije as List<Rezervacija> ?? new List<Rezervacija>();
+    var noviKorisnici = ViewBag.NoviKorisnici as List<Korisnik> ?? new List<Korisnik>();
+}
+
+@if (User.IsInRole("Administrator"))
+{
+    <section class="power-dashboard">
+
+        <div class="dashboard-hero">
+            <div>
+                <span class="home-badge">Administrator</span>
+                <h1>Kontrolni centar sistema</h1>
+                <p>Pregled rezervacija, korisnika, parking mjesta, prihoda i recenzija.</p>
+            </div>
+
+            <div class="dashboard-hero-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+        </div>
+
+        <div class="system-status-bar">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>Sistem aktivan</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>@aktivneRezervacije aktivnih rezervacija</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>@brojParkingMjesta parking mjesta</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-users"></i>
+                <span>@brojKorisnika korisnika</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Ukupno rezervacija</span>
+                <strong>@brojRezervacija</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Aktivne</span>
+                <strong>@aktivneRezervacije</strong>
+                <div class="mini-progress">
+                    <div style="width:@((aktivneRezervacije * 100) / Math.Max(brojRezervacija, 1))%"></div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-flag-checkered"></i>
+                <span>Završene</span>
+                <strong>@zavrseneRezervacije</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-ban"></i>
+                <span>Otkazane</span>
+                <strong>@otkazaneRezervacije</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>Parking mjesta</span>
+                <strong>@brojParkingMjesta</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-users"></i>
+                <span>Korisnici</span>
+                <strong>@brojKorisnika</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                <span>Prihod</span>
+                <strong>@ukupnaZarada.ToString("0.00") KM</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-star"></i>
+                <span>Ocjena</span>
+                <strong>@prosjecnaOcjena.ToString("0.0")/5</strong>
+            </div>
+        </div>
+
+        <div class="dashboard-grid mt-4">
+            <a asp-controller="Rezervacija" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-calendar-check"></i>
+                <h3>Rezervacije</h3>
+                <p>Pregled i upravljanje rezervacijama.</p>
+            </a>
+
+            <a asp-controller="Korisnik" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-users"></i>
+                <h3>Korisnici</h3>
+                <p>Registrovani korisnici, operateri i administratori.</p>
+            </a>
+
+            <a asp-controller="ParkingMjesto" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-car"></i>
+                <h3>Parking mjesta</h3>
+                <p>Pregled zona, tipova i statusa mjesta.</p>
+            </a>
+
+            <a asp-controller="Recenzija" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-star"></i>
+                <h3>Recenzije</h3>
+                <p>Pregled ocjena korisnika.</p>
+            </a>
+        </div>
+
+        <div class="dashboard-bottom-grid mt-4">
+            <div class="dashboard-live-card">
+                <div class="live-card-header">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Nedavne rezervacije</h3>
+                    <span>Uživo podaci</span>
+                </div>
+
+                @if (zadnjeRezervacije.Any())
+                {
+                    @foreach (var rezervacija in zadnjeRezervacije)
+                    {
+                        <div class="activity-row">
+                            <div>
+                                <strong>
+                                    @(rezervacija.ParkingMjesto != null
+                                        ? rezervacija.ParkingMjesto.Oznaka
+                                        : $"Mjesto #{rezervacija.ParkingMjestoId}")
+                                </strong>
+                                <p>@rezervacija.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</p>
+                            </div>
+
+                            <span class="activity-status">@rezervacija.StatusRezervacije</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Trenutno nema rezervacija.</p>
+                }
+            </div>
+
+            <div class="dashboard-live-card">
+                <div class="live-card-header">
+                    <h3><i class="fa-solid fa-user-plus"></i> Novi korisnici</h3>
+                    <span>Registracije</span>
+                </div>
+
+                @if (noviKorisnici.Any())
+                {
+                    @foreach (var korisnik in noviKorisnici)
+                    {
+                        <div class="activity-row">
+                            <div>
+                                <strong>@korisnik.Ime @korisnik.Prezime</strong>
+                                <p>@korisnik.Email</p>
+                            </div>
+
+                            <span class="activity-role">@korisnik.Uloga</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Trenutno nema novih korisnika.</p>
+                }
+            </div>
+        </div>
+
+    </section>
+}
+else if (User.IsInRole("Operater"))
+{
+    <section class="power-dashboard">
+
+        <div class="dashboard-hero operator">
+            <div>
+                <span class="home-badge">Operater</span>
+                <h1>Operaterski panel</h1>
+                <p>Brzi pristup rezervacijama, korisnicima i parking mjestima.</p>
+            </div>
+
+            <div class="dashboard-hero-icon">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+        </div>
+
+        <div class="system-status-bar">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>Sistem aktivan</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>@aktivneRezervacije aktivnih rezervacija</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>@brojParkingMjesta parking mjesta</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-users"></i>
+                <span>@brojKorisnika korisnika</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Ukupno rezervacija</span>
+                <strong>@brojRezervacija</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Aktivne</span>
+                <strong>@aktivneRezervacije</strong>
+                <div class="mini-progress">
+                    <div style="width:@((aktivneRezervacije * 100) / Math.Max(brojRezervacija, 1))%"></div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>Parking mjesta</span>
+                <strong>@brojParkingMjesta</strong>
+            </div>
+
+            <div class="stat-card">
+                <i class="fa-solid fa-users"></i>
+                <span>Korisnici</span>
+                <strong>@brojKorisnika</strong>
+            </div>
+        </div>
+
+        <div class="dashboard-grid operator-dashboard-grid mt-4">
+            <a asp-controller="Rezervacija" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-calendar-check"></i>
+                <h3>Rezervacije</h3>
+                <p>Pregled rezervacija korisnika.</p>
+            </a>
+
+            <a asp-controller="ParkingMjesto" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-square-parking"></i>
+                <h3>Parking mjesta</h3>
+                <p>Pregled i označavanje mjesta van funkcije.</p>
+            </a>
+
+            <a asp-controller="Korisnik" asp-action="Index" class="dashboard-card">
+                <i class="fa-solid fa-user-group"></i>
+                <h3>Korisnici</h3>
+                <p>Pregled korisnika i statusa naloga.</p>
+            </a>
+        </div>
+
+        <div class="dashboard-bottom-grid mt-4">
+            <div class="dashboard-live-card">
+                <div class="live-card-header">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Nedavne rezervacije</h3>
+                    <span>Uživo podaci</span>
+                </div>
+
+                @if (zadnjeRezervacije.Any())
+                {
+                    @foreach (var rezervacija in zadnjeRezervacije)
+                    {
+                        <div class="activity-row">
+                            <div>
+                                <strong>
+                                    @(rezervacija.ParkingMjesto != null
+                                        ? rezervacija.ParkingMjesto.Oznaka
+                                        : $"Mjesto #{rezervacija.ParkingMjestoId}")
+                                </strong>
+                                <p>@rezervacija.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")</p>
+                            </div>
+
+                            <span class="activity-status">@rezervacija.StatusRezervacije</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Trenutno nema rezervacija.</p>
+                }
+            </div>
+
+            <div class="dashboard-live-card">
+                <div class="live-card-header">
+                    <h3><i class="fa-solid fa-user-plus"></i> Novi korisnici</h3>
+                    <span>Registracije</span>
+                </div>
+
+                @if (noviKorisnici.Any())
+                {
+                    @foreach (var korisnik in noviKorisnici)
+                    {
+                        <div class="activity-row">
+                            <div>
+                                <strong>@korisnik.Ime @korisnik.Prezime</strong>
+                                <p>@korisnik.Email</p>
+                            </div>
+
+                            <span class="activity-role">@korisnik.Uloga</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Trenutno nema novih korisnika.</p>
+                }
+            </div>
+        </div>
+
+    </section>
+}
+else
+{
+    <section class="landing-hero">
+        <div class="landing-hero-text">
+            <div class="rating-pill">
+                <i class="fa-brands fa-google"></i>
+                <strong>@prosjecnaOcjena.ToString("0.0") / 5.0</strong>
+                <span>prosječna ocjena na osnovu @brojRecenzija recenzija</span>
+            </div>
+
+            <h1>Tražite sigurno parking mjesto u Sarajevu?</h1>
+
+            <p>
+                Dobrodošli u Pametni Parking Sistem — moderno rješenje za online rezervaciju parking mjesta.
+                Pregledajte zone, odaberite termin, platite online i dobijte email potvrdu rezervacije.
+            </p>
+
+            <div class="landing-actions">
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="ParkingMjesto" asp-action="Index" class="btn btn-success btn-lg">Rezervišite parking mjesto</a>
+                    <a asp-controller="Rezervacija" asp-action="Moje" class="btn btn-outline-light btn-lg">Moje rezervacije</a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-success btn-lg">Rezervišite parking mjesto</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">Registrujte se</a>
+                }
+            </div>
+        </div>
+
+        <div class="landing-hero-visual">
+            <div class="parking-preview">
+                <i class="fa-solid fa-square-parking"></i>
+                <h3>Parking kapacitet</h3>
+
+                <div class="parking-preview-stats">
+                    <div>
+                        <strong>200+</strong>
+                        <span>parking mjesta</span>
+                    </div>
+
+                    <div>
+                        <strong>4</strong>
+                        <span>parking zone</span>
+                    </div>
+
+                    <div>
+                        <strong>24/7</strong>
+                        <span>online rezervacije</span>
+                    </div>
+                </div>
+
+                <p>
+                    Sistem obuhvata preko 200 parking mjesta raspoređenih kroz više zona,
+                    prilagođenih različitim potrebama korisnika — od standardnih mjesta za svakodnevno parkiranje,
+                    preko invalidskih i električnih mjesta, do VIP pozicija sa najboljom lokacijom i dodatnim pogodnostima.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <section class="user-quick-panel">
+            <div class="user-mini-card">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Moje rezervacije</span>
+                <strong>@mojeRezervacijeCount</strong>
+                <p class="mini-card-note">ukupno kreiranih rezervacija</p>
+            </div>
+
+            @if (mojaAktivnaRezervacija != null)
+            {
+                <div class="next-reservation-card">
+
+                    <span class="reservation-label">
+                        Sljedeća aktivna rezervacija
+                    </span>
+
+                    <div class="active-reservation-title">
+                        <h3>
+                            @(mojaAktivnaRezervacija.ParkingMjesto != null
+                                ? mojaAktivnaRezervacija.ParkingMjesto.Oznaka
+                                : $"ID {mojaAktivnaRezervacija.ParkingMjestoId}")
+                        </h3>
+
+                        <span class="reservation-status">
+                            Aktivna
+                        </span>
+                    </div>
+
+                    <p class="reservation-date">
+                        @mojaAktivnaRezervacija.VrijemePocetka.ToString("dd.MM.yyyy HH:mm")
+                        -
+                        @mojaAktivnaRezervacija.VrijemeKraja.ToString("dd.MM.yyyy HH:mm")
+                    </p>
+
+                    <a asp-controller="Rezervacija"
+                           asp-action="Details"
+                           asp-route-id="@mojaAktivnaRezervacija.Id"
+                           class="btn btn-success">
+                        Detalji
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="next-reservation-card">
+                    <span>Trenutno nemate aktivnu rezervaciju</span>
+                    <h3>Rezervišite parking online</h3>
+                    <p>Odaberite parking mjesto i termin koji vam odgovara.</p>
+                    <a asp-controller="ParkingMjesto" asp-action="Index" class="btn btn-success">Pronađi mjesto</a>
+                </div>
+            }
+        </section>
+    }
+
+    <section id="kako-radi" class="landing-section">
+        <div class="section-heading">
+            <h2>Kako funkcioniše sistem?</h2>
+            <p>Rezervacija parking mjesta traje manje od jedne minute.</p>
+        </div>
+
+        <div class="landing-cards">
+            <div class="landing-card"><i class="fa-solid fa-map-location-dot"></i><h3>Odaberite mjesto</h3><p>Pregledajte zone i detalje parking mjesta.</p></div>
+            <div class="landing-card"><i class="fa-solid fa-calendar-check"></i><h3>Unesite termin</h3><p>Sistem provjerava dostupnost za odabrani period.</p></div>
+            <div class="landing-card"><i class="fa-solid fa-credit-card"></i><h3>Platite online</h3><p>Rezervacija postaje aktivna tek nakon plaćanja.</p></div>
+            <div class="landing-card"><i class="fa-solid fa-envelope-circle-check"></i><h3>Email potvrda</h3><p>Potvrda rezervacije dolazi direktno na email.</p></div>
+        </div>
+    </section>
+
+    <section class="pricing-section">
+        <div class="section-heading">
+            <h2>Cjenovnik po zonama</h2>
+            <p>Cijene zavise od udaljenosti od ulaza i pogodnosti parking mjesta.</p>
+        </div>
+        <div class="pricing-grid">
+
+            <div class="pricing-card">
+                <h3>Zona A</h3>
+
+                <p>Najbliža ulazu</p>
+
+                <strong>5–8 KM/sat</strong>
+
+                <ul class="zone-info-list">
+                    <li>✔ Standardna mjesta</li>
+                    <li>✔ Električna vozila</li>
+                    <li>✔ Invalidska mjesta</li>
+                    <li>✔ Najmanja udaljenost</li>
+                </ul>
+            </div>
+
+            <div class="pricing-card popular">
+
+                <span>Najpopularnije</span>
+
+                <h3>Zona B</h3>
+
+                <p>Standardna zona sa srednjom udaljenosti od ulaza</p>
+
+                <strong>3–6 KM/sat</strong>
+
+                <ul class="zone-info-list">
+                    <li>✔ Balans cijene i udaljenosti</li>
+                    <li>✔ Natkrivena mjesta</li>
+                    <li>✔ Električna vozila</li>
+                    <li>✔ Invalidska mjesta</li>
+                </ul>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Zona C</h3>
+
+                <p>Ekonomična zona za dugotrajnije parkiranje</p>
+
+                <strong>2–5 KM/sat</strong>
+
+                <ul class="zone-info-list">
+                    <li>✔ Najpovoljnija mjesta</li>
+                    <li>✔ Veća udaljenost</li>
+                    <li>✔ Svi tipovi parking mjesta</li>
+                    <li>✔ Dugotrajno parkiranje</li>
+                </ul>
+            </div>
+
+            <div class="pricing-card vip">
+
+                <h3>VIP zona</h3>
+
+                <p>Premium mjesta sa najboljom lokacijom</p>
+
+                <strong>10–14 KM/sat</strong>
+
+                <ul class="zone-info-list">
+                    <li>✔ Premium parking mjesta</li>
+                    <li>✔ Natkrivena, osvijetljena, osigurana</li>
+                    <li>✔ Električna i invalidska mjesta</li>
+                    <li>✔ Najbliže administraciji</li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="reviews-preview-section">
+        <div class="section-heading">
+            <h2>Recenzije korisnika</h2>
+            <p>Stvarna iskustva korisnika nakon završenih rezervacija.</p>
+        </div>
+
+        <div class="review-preview-grid">
+            @if (zadnjeRecenzije.Any())
+            {
+                @foreach (var recenzija in zadnjeRecenzije)
+                {
+                    <div class="review-preview-card">
+                        <div class="stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                @(i <= recenzija.Ocjena ? "★" : "☆")
+                            }
+                        </div>
+
+                        <p>“@(string.IsNullOrWhiteSpace(recenzija.Komentar) ? "Korisnik je ostavio ocjenu bez komentara." : recenzija.Komentar)”</p>
+
+                        <strong>
+                            @(recenzija.Korisnik != null ? $"{recenzija.Korisnik.Ime} {recenzija.Korisnik.Prezime}" : "Korisnik")
+                        </strong>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="review-preview-card">
+                    <div class="stars">☆☆☆☆☆</div>
+                    <p>Trenutno nema recenzija korisnika.</p>
+                    <strong>Pametni Parking Sistem</strong>
+                </div>
+            }
+        </div>
+
+        <div class="google-rating-box">
+            <i class="fa-brands fa-google"></i>
+            <strong>@prosjecnaOcjena.ToString("0.0") / 5.0</strong>
+            <span>prosječna ocjena na osnovu @brojRecenzija recenzija</span>
+            <a asp-controller="Recenzija" asp-action="Index" class="btn btn-primary">Pogledajte recenzije</a>
+        </div>
+    </section>
+
+    <section class="faq-contact-section">
+        <div class="faq-box">
+            <h2>Često postavljana pitanja</h2>
+
+            <details class="faq-item">
+                <summary>
+                    Da li mogu rezervisati unaprijed?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Da, parking mjesto možete rezervisati za željeni termin.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    Kada rezervacija postaje aktivna?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Rezervacija postaje aktivna nakon online plaćanja.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    Mogu li gosti pregledati parking mjesta?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Da, gosti mogu pregledati parking mjesta i recenzije, ali ne mogu rezervisati.</p>
+            </details>
+        </div>
+
+        <div class="contact-box">
+            <h2>Kontakt</h2>
+            <p><i class="fa-solid fa-location-dot me-2"></i> Džemala Bijedića bb, Sarajevo 71000</p>
+            <p><i class="fa-solid fa-phone me-2"></i> +387 61 000 000</p>
+            <p><i class="fa-solid fa-envelope me-2"></i> pametniparkingsistem@gmail.com</p>
+            <p><i class="fa-solid fa-clock me-2"></i> Radno vrijeme: 00-24h</p>
+        </div>
+    </section>
+}

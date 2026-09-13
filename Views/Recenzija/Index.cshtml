@@ -1,0 +1,121 @@
+﻿@model IEnumerable<PametniParkingSistem.Models.Recenzija>
+
+@{
+    ViewData["Title"] = "Recenzije i ocjene";
+    bool jeAdminIliOperater = User.IsInRole("Administrator") || User.IsInRole("Operater");
+}
+
+<div class="page-header mb-4">
+    <h1>Recenzije i ocjene</h1>
+    <p class="text-muted">Pregled iskustava korisnika nakon završenih rezervacija.</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fa-solid fa-star"></i>
+        <h3>Nema recenzija</h3>
+        <p>Trenutno nema evidentiranih recenzija.</p>
+    </div>
+}
+else
+{
+    <div class="modern-reviews-grid">
+
+        @foreach (var item in Model.OrderByDescending(x => x.Datum))
+        {
+            <div class="modern-review-card">
+
+                <div class="modern-review-top">
+
+                    <div class="review-user-box">
+                        <div class="review-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                        <div>
+                            <h4>
+                                @if (item.Korisnik != null)
+                                {
+                                    @($"{item.Korisnik.Ime} {item.Korisnik.Prezime}")
+                                }
+                                else
+                                {
+                                    @("Korisnik")
+                                }
+                            </h4>
+
+                            <span>@item.Datum.ToString("dd.MM.yyyy.")</span>
+                        </div>
+                    </div>
+
+                    <div class="review-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= item.Ocjena)
+                            {
+                                <span class="star-filled">★</span>
+                            }
+                            else
+                            {
+                                <span class="star-empty">☆</span>
+                            }
+                        }
+                    </div>
+
+                </div>
+
+                <div class="review-parking-info">
+                    <div>
+                        <span>Parking mjesto</span>
+                        <strong>
+                            @(item.Rezervacija?.ParkingMjesto?.Oznaka ?? $"ID {item.Rezervacija?.ParkingMjestoId}")
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Rezervacija</span>
+                        <strong>#@item.RezervacijaId</strong>
+                    </div>
+                </div>
+
+                <div class="review-comment-box">
+                    @if (!string.IsNullOrWhiteSpace(item.Komentar))
+                    {
+                        <p>@item.Komentar</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Korisnik nije ostavio komentar.</p>
+                    }
+                </div>
+
+                <div class="review-footer-actions">
+
+                    <div class="review-readonly-note">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        Recenzija nakon završene rezervacije
+                    </div>
+
+                    @if (jeAdminIliOperater)
+                    {
+                        <form asp-action="Delete"
+                              asp-route-id="@item.Id"
+                              method="post"
+                              onsubmit="return confirm('Da li ste sigurni da želite obrisati ovu recenziju?');">
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash me-1"></i>
+                                Obriši
+                            </button>
+                        </form>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+}

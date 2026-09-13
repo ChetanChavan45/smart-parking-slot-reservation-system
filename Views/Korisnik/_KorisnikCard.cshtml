@@ -1,0 +1,91 @@
+﻿@model PametniParkingSistem.Models.Korisnik
+@using PametniParkingSistem.Enums
+
+@{
+    bool jeAdmin = User.IsInRole("Administrator");
+}
+
+<div class="user-card">
+
+    <div class="user-card-top">
+        <div class="user-avatar-small">
+            @if (!string.IsNullOrWhiteSpace(Model.ProfilnaSlikaUrl))
+            {
+                <img src="@Model.ProfilnaSlikaUrl" alt="Profilna slika" />
+            }
+            else
+            {
+                <i class="fa-solid fa-user"></i>
+            }
+        </div>
+
+        <div>
+            <h3>@Model.Ime @Model.Prezime</h3>
+            <p>@Model.Email</p>
+        </div>
+    </div>
+
+    <div class="user-card-info">
+
+        <div>
+            <span>Telefon</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Nije uneseno" : Model.PhoneNumber)</strong>
+        </div>
+
+        <div>
+            <span>Uloga</span>
+            <strong>@Model.Uloga</strong>
+        </div>
+
+        <div>
+            <span>Datum registracije</span>
+            <strong>@Model.DatumRegistracije.ToString("dd.MM.yyyy.")</strong>
+        </div>
+
+        <div>
+            <span>Status</span>
+
+            @if (Model.StatusNaloga == StatusNaloga.Aktivan)
+            {
+                <strong class="text-success">Aktivan</strong>
+            }
+            else
+            {
+                <strong class="text-danger">Blokiran</strong>
+            }
+        </div>
+
+    </div>
+
+    <div class="user-card-actions">
+
+        <a asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            Detalji
+        </a>
+
+        @if (jeAdmin || Model.Uloga == Uloga.RegistrovaniKorisnik)
+        {
+            <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning btn-sm">
+                <i class="fa-solid fa-user-lock me-1"></i>
+                Status
+            </a>
+        }
+
+        @if (jeAdmin)
+        {
+            <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-trash me-1"></i>
+                Obriši
+            </a>
+        }
+
+    </div>
+
+</div>

@@ -1,0 +1,118 @@
+﻿@model PametniParkingSistem.Models.PodrskaZahtjev
+@using PametniParkingSistem.Enums
+
+@{
+    ViewData["Title"] = "Detalji zahtjeva";
+    bool jeAdminIliOperater = User.IsInRole("Administrator") || User.IsInRole("Operater");
+
+    string statusText = Model.Status.ToString();
+
+    if (Model.Status == StatusPodrske.UObradi)
+        statusText = "U obradi";
+    else if (Model.Status == StatusPodrske.Rijesen)
+        statusText = "Riješen";
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="reservation-detail-hero">
+            <div class="reservation-detail-icon">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+
+            <h2 style="font-size: 42px;">Zahtjev #@Model.Id</h2>
+            <p>@Model.Naslov</p>
+
+            <div class="hero-price">
+                @statusText
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card p-4">
+            <h3 class="fw-bold mb-4">Detalji zahtjeva</h3>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span>Kategorija</span>
+                    <strong>@Model.Kategorija</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Prioritet</span>
+                    <strong>@Model.Prioritet</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Datum slanja</span>
+                    <strong>@Model.DatumKreiranja.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Datum odgovora</span>
+                    <strong>
+                        @(Model.DatumOdgovora == null ? "Nije odgovoreno" : Model.DatumOdgovora.Value.ToString("dd.MM.yyyy HH:mm"))
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Korisnik</span>
+                    <strong>
+                        @if (Model.Korisnik != null)
+                        {
+                            @($"{Model.Korisnik.Ime} {Model.Korisnik.Prezime}")
+                        }
+                        else
+                        {
+                            @("Nepoznat korisnik")
+                        }
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Email</span>
+                    <strong>@(Model.Korisnik?.Email ?? "Nije dostupno")</strong>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <h5 class="fw-bold">Opis problema</h5>
+            <div class="receipt-note mb-4">
+                @Model.Opis
+            </div>
+
+            <h5 class="fw-bold">Odgovor podrške</h5>
+
+            @if (string.IsNullOrWhiteSpace(Model.Odgovor))
+            {
+                <div class="reservation-info-box">
+                    Podrška još nije odgovorila na ovaj zahtjev.
+                </div>
+            }
+            else
+            {
+                <div class="receipt-note">
+                    @Model.Odgovor
+                </div>
+            }
+
+            <div class="d-flex gap-2 flex-wrap mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Nazad
+                </a>
+
+                @if (jeAdminIliOperater)
+                {
+                    <a asp-action="Odgovori"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-success">
+                        <i class="fa-solid fa-reply me-2"></i>
+                        Odgovori
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
